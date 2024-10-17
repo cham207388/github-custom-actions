@@ -7,14 +7,8 @@ inputs:
   directory:
     description: 'Directory of the Terraform configuration'
     required: true
-  var_file:
-    description: Path to variable file
-    required: false
   variables:
     description: 'Variables to pass to Terraform'
-    required: false
-  workspace:
-    description: 'Terraform workspace'
     required: false
   aws-access-key-id:
     description: 'AWS Access Key ID'
@@ -30,7 +24,6 @@ inputs:
     required: false
     # For AWS auth, you can use either aws-access-key-id/aws-secret-access-key 
     # or role-arn/role-session-name
-
 runs:
   using: "composite"
   steps:
@@ -48,8 +41,6 @@ runs:
       aws-access-key-id: ${{ inputs.aws-access-key-id }}
       aws-secret-access-key: ${{ inputs.aws-secret-access-key }}
       aws-region: ${{ inputs.aws-region }}
-      # role-to-assume: ${{ env.role-arn }}
-      # role-session-name: GitHub-Actions-Terraform-Role
 
   # Step 1: Select Workspace
   - name: Setup Terraform
