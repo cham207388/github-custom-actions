@@ -69,7 +69,7 @@ runs:
     working-directory: ${{ inputs.directory }}
     shell: bash
 
-  - name: tf plan
+  - name: Terraform Plan
     run: |
       var_args=""
       if [ ! -z "${{ inputs.var_file }}" ]; then
@@ -82,12 +82,6 @@ runs:
       fi
       terraform plan $var_args
       working-directory: ${{ inputs.directory }}
-  - name: Terraform Plan
-    env:
-      TF_VAR_region: ${{ inputs.aws_region }}
-    run: |
-      terraform plan
-    working-directory: ${{ inputs.directory }}
     shell: bash
 
   # - name: Terraform Apply
