@@ -30,6 +30,9 @@ inputs:
     required: false
     # For AWS auth, you can use either aws-access-key-id/aws-secret-access-key 
     # or role-arn/role-session-name
+  ssh-private-key:
+    description: 'SSH Private Key'
+    required: false
 
 runs:
   using: "composite"
@@ -50,7 +53,11 @@ runs:
       aws-region: ${{ inputs.aws-region }}
       # role-to-assume: ${{ env.role-arn }}
       # role-session-name: GitHub-Actions-Terraform-Role
-
+    # Ensure SSH agent is available and load the private key
+  - name: Set up SSH
+    uses: webfactory/ssh-agent@v0.5.3
+    with:
+      ssh-private-key: ${{ inputs.ssh-private-key }}
   # Step 1: Select Workspace
   - name: Setup Terraform
     uses: hashicorp/setup-terraform@v3
