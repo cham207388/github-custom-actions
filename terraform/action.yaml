@@ -1,18 +1,21 @@
 name: Terraform Action for AWS
 
 inputs:
+  aws-region:
+    description: 'AWS Region'
+    required: true
   directory:
     description: 'Directory of the Terraform configuration'
     required: true
+  var_file:
+    description: Path to variable file
+    required: false
   variables:
     description: 'Variables to pass to Terraform'
     required: false
   workspace:
     description: 'Terraform workspace'
     required: false
-  aws-region:
-    description: 'AWS Region'
-    required: true
   aws-access-key-id:
     description: 'AWS Access Key ID'
     required: true
@@ -38,32 +41,59 @@ runs:
       aws-secret-access-key: ${{ inputs.aws-secret-access-key }}
       aws-region: ${{ inputs.aws-region }}
 
+  # Step 1: Select Workspace
   - name: Setup Terraform
     uses: hashicorp/setup-terraform@v3
     with:
-    terraform_version: 1.9.1
+      terraform_version: 1.9.1
+
 
   - name: Terraform Init
     run: terraform init -upgrade
+    working-directory: ${{ inputs.directory }}
+    shell: bash
+
+  # Step 3: Select Workspace
+  - name: Select workspace
+    run: |
+      if [ -n "${{ inputs.workspace }}" ]; then
+          terraform workspace select ${{ inputs.workspace }} || terraform workspace new ${{ inputs.workspace }}
+      else
+        echo "No workspace provided, skipping workspace selection."
+      fi
+    working-directory: ${{ inputs.directory }}
     shell: bash
 
   - name: Terraform Validate
-    env:
-      TF_VAR_region: ${{ inputs.aws_region }}
-    run: |
-      terraform validate
+    run: terraform validate
+    working-directory: ${{ inputs.directory }}
     shell: bash
 
+  - name: tf plan
+    run: |
+      var_args=""
+      if [ ! -z "${{ inputs.var_file }}" ]; then
+        var_args="$var_args -var-file=${{ inputs.var_file }}"
+      fi
+      if [ ! -z "${{ inputs.variables }}" ]; then
+        for var in $(echo "${{ inputs.variables }}" | tr ',' '\n'); do
+          var_args="$var_args -var $var"
+        done
+      fi
+      terraform plan $var_args
+      working-directory: ${{ inputs.directory }}
   - name: Terraform Plan
     env:
       TF_VAR_region: ${{ inputs.aws_region }}
     run: |
       terraform plan
+    working-directory: ${{ inputs.directory }}
     shell: bash
 
   # - name: Terraform Apply
   #   env:
   #     TF_VAR_region: ${{ inputs.aws_region }}
   #   run: |
-  #     terraform apply -auto-approve
-  #   shell: bash
+  #   terraform apply -auto-approve
+  # working-directory: ${{ inputs.directory }}
+  # shell: bash
