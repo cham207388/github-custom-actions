@@ -7,9 +7,6 @@ inputs:
   directory:
     description: 'Directory of the Terraform configuration'
     required: true
-  var_file:
-    description: Path to variable file
-    required: false
   variables:
     description: 'Variables to pass to Terraform'
     required: false
@@ -42,7 +39,7 @@ runs:
     shell: bash
 
   - name: Print Directory Structure
-    run: ls -al ./
+    run: ls -al ${{ inputs.directory }}
     shell: bash
 
   - name: Login to AWS
@@ -78,6 +75,7 @@ runs:
       else
         echo "No workspace provided, skipping workspace selection."
       fi
+      ls -ltr
     working-directory: ${{ inputs.directory }}
     shell: bash
 
@@ -89,9 +87,7 @@ runs:
   - name: Terraform Plan
     run: |
       var_args=""
-      if [ ! -z "${{ inputs.var_file }}" ]; then
-        var_args="$var_args -var-file=${{ inputs.var_file }}"
-      fi
+      ls -ltr
       if [ ! -z "${{ inputs.variables }}" ]; then
         for var in $(echo "${{ inputs.variables }}" | tr ',' '\n'); do
           var_args="$var_args -var $var"
