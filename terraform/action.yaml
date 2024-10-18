@@ -86,15 +86,16 @@ runs:
 
   - name: Terraform Plan
     run: |
-      var_args=""
+      cd ${{ inputs.directory }}
       ls -ltr
+      var_args=""
       if [ ! -z "${{ inputs.variables }}" ]; then
         for var in $(echo "${{ inputs.variables }}" | tr ',' '\n'); do
           var_args="$var_args -var $var"
         done
       fi
       terraform plan $var_args
-      working-directory: ${{ inputs.directory }}
+      # working-directory: ${{ inputs.directory }}
     shell: bash
 
   # - name: Terraform Apply
