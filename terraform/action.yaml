@@ -61,27 +61,28 @@ runs:
     with:
       terraform_version: 1.9.1
 
-
   - name: Terraform Init
-    run: terraform init -upgrade
-    working-directory: ${{ inputs.directory }}
+    run: |
+      cd ${{ inputs.directory }}
+      terraform init -upgrade
     shell: bash
 
   # Step 3: Select Workspace
   - name: Select workspace
     run: |
+      cd ${{ inputs.directory }}
       if [ -n "${{ inputs.workspace }}" ]; then
           terraform workspace select ${{ inputs.workspace }} || terraform workspace new ${{ inputs.workspace }}
       else
         echo "No workspace provided, skipping workspace selection."
       fi
       ls -ltr
-    working-directory: ${{ inputs.directory }}
     shell: bash
 
   - name: Terraform Validate
-    run: terraform validate
-    working-directory: ${{ inputs.directory }}
+    run: |
+      cd ${{ inputs.directory }}
+      terraform validate
     shell: bash
 
   - name: Terraform Plan
@@ -95,13 +96,10 @@ runs:
         done
       fi
       terraform plan $var_args
-      # working-directory: ${{ inputs.directory }}
     shell: bash
 
-  # - name: Terraform Apply
-  #   env:
-  #     TF_VAR_region: ${{ inputs.aws_region }}
-  #   run: |
-  #   terraform apply -auto-approve
-  # working-directory: ${{ inputs.directory }}
-  # shell: bash
+  - name: Terraform Apply
+    run: |
+      cd ${{ inputs.directory }}
+      terraform apply -auto-approve
+    shell: bash
