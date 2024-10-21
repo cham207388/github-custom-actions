@@ -30,6 +30,10 @@ inputs:
   ssh-private-key:
     description: 'SSH Private Key'
     required: false
+  apply:
+    description: Terraform apply
+    default: true
+    required: false
 
 runs:
   using: "composite"
@@ -101,5 +105,9 @@ runs:
   - name: Terraform Apply
     run: |
       cd ${{ inputs.directory }}
-      terraform apply -auto-approve
+      if [ -n "${{ inputs.apply }}" ]; then
+        terraform apply -auto-approve
+      else
+        terraform destroy -auto-approve
+
     shell: bash
