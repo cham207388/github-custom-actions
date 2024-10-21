@@ -94,9 +94,13 @@ runs:
       cd ${{ inputs.directory }}
       ls -ltr
       var_args=""
+      # Iterate through the variables and export each as TF_VAR_
       if [ ! -z "${{ inputs.variables }}" ]; then
         for var in $(echo "${{ inputs.variables }}" | tr ',' '\n'); do
-          var_args="$var_args -var $var"
+          key=$(echo $var | cut -d '=' -f 1)   # Extract the variable name
+          value=$(echo $var | cut -d '=' -f 2) # Extract the variable value
+          echo "Exporting TF_VAR_$key=$value"
+          export TF_VAR_$key="$value"          # Export as TF_VAR_ format
         done
       fi
       terraform plan $var_args
