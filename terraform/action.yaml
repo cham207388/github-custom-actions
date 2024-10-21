@@ -89,47 +89,47 @@ runs:
       terraform validate
     shell: bash
 
-  # - name: Terraform Plan
-  #   run: |
-  #     cd ${{ inputs.directory }}
-  #     ls -ltr
-  #     var_args=""
-  #     # Iterate through the variables and export each as TF_VAR_
-  #     if [ ! -z "${{ inputs.variables }}" ]; then
-  #       for var in $(echo "${{ inputs.variables }}" | tr ',' '\n'); do
-  #         key=$(echo $var | cut -d '=' -f 1)   # Extract the variable name
-  #         value=$(echo $var | cut -d '=' -f 2) # Extract the variable value
-  #         echo "Exporting TF_VAR_$key=$value"
-  #         export TF_VAR_$key="$value"          # Export as TF_VAR_ format
-  #       done
-  #     fi
-  #     terraform plan
-  #   shell: bash
-
-  # - name: Terraform Apply
-  #   run: |
-  #     cd ${{ inputs.directory }}
-  #     ls -ltr
-  #     var_args=""
-  #     # Iterate through the variables and export each as TF_VAR_
-  #     if [ ! -z "${{ inputs.variables }}" ]; then
-  #       for var in $(echo "${{ inputs.variables }}" | tr ',' '\n'); do
-  #         key=$(echo $var | cut -d '=' -f 1)   # Extract the variable name
-  #         value=$(echo $var | cut -d '=' -f 2) # Extract the variable value
-  #         echo "Exporting TF_VAR_$key=$value"
-  #         export TF_VAR_$key="$value"          # Export as TF_VAR_ format
-  #       done
-  #     fi
-  #     terraform apply -auto-approve
-  #   shell: bash
-
   - name: Terraform Plan
     run: |
-      bash terraform_run.sh "${{ inputs.directory }}" "${{ inputs.variables }}" "plan"
+      cd ${{ inputs.directory }}
+      ls -ltr
+      var_args=""
+      # Iterate through the variables and export each as TF_VAR_
+      if [ ! -z "${{ inputs.variables }}" ]; then
+        for var in $(echo "${{ inputs.variables }}" | tr ',' '\n'); do
+          key=$(echo $var | cut -d '=' -f 1)   # Extract the variable name
+          value=$(echo $var | cut -d '=' -f 2) # Extract the variable value
+          echo "Exporting TF_VAR_$key=$value"
+          export TF_VAR_$key="$value"          # Export as TF_VAR_ format
+        done
+      fi
+      terraform plan
     shell: bash
 
-    # Step 3: Terraform Apply
   - name: Terraform Apply
     run: |
-      bash terraform_run.sh "${{ inputs.directory }}" "${{ inputs.variables }}" "apply"
+      cd ${{ inputs.directory }}
+      ls -ltr
+      var_args=""
+      # Iterate through the variables and export each as TF_VAR_
+      if [ ! -z "${{ inputs.variables }}" ]; then
+        for var in $(echo "${{ inputs.variables }}" | tr ',' '\n'); do
+          key=$(echo $var | cut -d '=' -f 1)   # Extract the variable name
+          value=$(echo $var | cut -d '=' -f 2) # Extract the variable value
+          echo "Exporting TF_VAR_$key=$value"
+          export TF_VAR_$key="$value"          # Export as TF_VAR_ format
+        done
+      fi
+      terraform apply -auto-approve
     shell: bash
+
+  # - name: Terraform Plan
+  #   run: |
+  #     bash terraform_run.sh "${{ inputs.directory }}" "${{ inputs.variables }}" "plan"
+  #   shell: bash
+
+  #   # Step 3: Terraform Apply
+  # - name: Terraform Apply
+  #   run: |
+  #     bash terraform_run.sh "${{ inputs.directory }}" "${{ inputs.variables }}" "apply"
+  #   shell: bash
