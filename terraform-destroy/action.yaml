@@ -83,43 +83,10 @@ runs:
       ls -ltr
     shell: bash
 
-  - name: Terraform Validate
-    run: |
-      cd ${{ inputs.directory }}
-      terraform validate
-    shell: bash
-
-  - name: Terraform Plan
+  - name: Terraform Destroy
     run: |
       cd ${{ inputs.directory }}
       ls -ltr
-      var_args=""
-      # Iterate through the variables and export each as TF_VAR_
-      if [ ! -z "${{ inputs.variables }}" ]; then
-        for var in $(echo "${{ inputs.variables }}" | tr ',' '\n'); do
-          key=$(echo $var | cut -d '=' -f 1)   # Extract the variable name
-          value=$(echo $var | cut -d '=' -f 2) # Extract the variable value
-          echo "Exporting TF_VAR_$key=$value"
-          export TF_VAR_$key="$value"          # Export as TF_VAR_ format
-        done
-      fi
-      terraform plan
-    shell: bash
-
-  - name: Terraform Apply
-    run: |
-      cd ${{ inputs.directory }}
-      ls -ltr
-      var_args=""
-      # Iterate through the variables and export each as TF_VAR_
-      if [ ! -z "${{ inputs.variables }}" ]; then
-        for var in $(echo "${{ inputs.variables }}" | tr ',' '\n'); do
-          key=$(echo $var | cut -d '=' -f 1)   # Extract the variable name
-          value=$(echo $var | cut -d '=' -f 2) # Extract the variable value
-          echo "Exporting TF_VAR_$key=$value"
-          export TF_VAR_$key="$value"          # Export as TF_VAR_ format
-        done
-      fi
       terraform destroy -auto-approve
     shell: bash
 
