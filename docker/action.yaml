@@ -36,6 +36,6 @@ runs:
 
   - name: Build and push docker image
     run: |
-      docker build --platform linux/x86_64 -t ${{ inputs.image-name }}:${{ inputs.image-tag }} ${{ inputs.directory }}
+      docker build --platform linux/x86_64,linux/amd64,linux/arm64 -t ${{ inputs.image-name }}:${{ inputs.image-tag }} ${{ inputs.directory }}
       docker push ${{ inputs.image-name }}:${{ inputs.image-tag }}
     shell: bash
