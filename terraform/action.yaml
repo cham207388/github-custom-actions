@@ -30,9 +30,9 @@ inputs:
   ssh-private-key:
     description: 'SSH Private Key'
     required: false
-  clean-up:
-    description: Terraform apply
-    default: false
+  terraform_destroy:
+    description: Whether to destroy
+    default: "no"
     required: false
 
 runs:
@@ -54,7 +54,7 @@ runs:
       aws-region: ${{ inputs.aws-region }}
       # role-to-assume: ${{ env.role-arn }}
       # role-session-name: GitHub-Actions-Terraform-Role
-    # Ensure SSH agent is available and load the private key
+      # Ensure SSH agent is available and load the private key
   - name: Set up SSH
     uses: webfactory/ssh-agent@v0.5.3
     with:
@@ -120,9 +120,14 @@ runs:
           export TF_VAR_$key="$value"          # Export as TF_VAR_ format
         done
       fi
-      terraform apply -auto-approve
-    shell: bash
+      if [[ "${{ inputs.terraform_destroy }}" == "yes" ]]; then
+        echo "Destroying infrastructure!!!"
+        terraform destroy -auto-approve
+      else
+        echo "Provisioning infrastructure..."
+        terraform apply -auto-approve
 
+    shell: bash
   # - name: Terraform Plan
   #   run: |
   #     bash terraform_run.sh "${{ inputs.directory }}" "${{ inputs.variables }}" "plan"
