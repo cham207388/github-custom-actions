@@ -106,7 +106,7 @@ runs:
       terraform plan
     shell: bash
 
-  - name: Terraform Apply
+  - name: Terraform Destroy
     run: |
       cd ${{ inputs.directory }}
       ls -ltr
@@ -120,5 +120,5 @@ runs:
           export TF_VAR_$key="$value"          # Export as TF_VAR_ format
         done
       fi
-      terraform apply -auto-approve
+      terraform destroy -auto-approve
     shell: bash
