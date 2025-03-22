@@ -2,7 +2,7 @@ name: Build Project
 
 inputs:
   test:
-    default: "no"
+    default: "yes"
     description: "Run tests?"
     required: false
 
@@ -25,10 +25,10 @@ runs:
 
   - name: mvn package
     run: |
-      if [[ "${{ inputs.test }}" == "yes" ]]; then
-        mvn package
-      else
+      if [[ "${{ inputs.test }}" == "no" ]]; then
         echo "Skipping tests"
         mvn package -Dmaven.test.skip
+      else
+        mvn package
       fi
     shell: bash
