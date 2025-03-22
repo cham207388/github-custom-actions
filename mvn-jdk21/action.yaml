@@ -1,0 +1,37 @@
+name: Build Project
+
+inputs:
+  test:
+    default: "no"
+    description: "Run tests?"
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+  - name: Print Where I AM
+    run: pwd
+    shell: bash
+
+  - name: Set up JDK
+    uses: actions/setup-java@v4
+    with:
+      distribution: 'temurin'
+      java-version: '21'
+
+  - name: mvn clean
+    run: mvn clean
+    shell: bash
+
+  - name: mvn package
+    run: mvn package -Dmaven.test.skip
+    shell: bash
+
+  - name: mvn test
+    run: |
+      if [[ "${{ inputs.test }}" == "yes" ]]; then
+        mvn test
+      else
+        echo "Skipping tests"
+      fi
+    shell: bash
