@@ -24,14 +24,11 @@ runs:
     shell: bash
 
   - name: mvn package
-    run: mvn package -Dmaven.test.skip
-    shell: bash
-
-  - name: mvn test
     run: |
       if [[ "${{ inputs.test }}" == "yes" ]]; then
-        mvn test
+        mvn package
       else
         echo "Skipping tests"
+        mvn package -Dmaven.test.skip
       fi
     shell: bash
