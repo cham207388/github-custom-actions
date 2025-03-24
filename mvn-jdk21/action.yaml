@@ -5,6 +5,9 @@ inputs:
     default: "yes"
     description: "Run tests?"
     required: false
+  directory:
+    description: working directory
+    required: true
 
 runs:
   using: "composite"
@@ -20,11 +23,14 @@ runs:
       java-version: '21'
 
   - name: mvn clean
-    run: mvn clean
+    run: |
+      cd ${{ inputs.directory }}
+      mvn clean
     shell: bash
 
   - name: mvn package
     run: |
+      cd ${{ inputs.directory }}
       if [[ "${{ inputs.test }}" == "no" ]]; then
         echo "Skipping tests"
         mvn package -Dmaven.test.skip
