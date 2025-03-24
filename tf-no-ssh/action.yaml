@@ -1,0 +1,117 @@
+name: Terraform Action for AWS
+
+inputs:
+  aws-region:
+    description: 'AWS Region'
+    required: true
+  directory:
+    description: 'Directory of the Terraform configuration'
+    required: true
+  variables:
+    description: 'Variables to pass to Terraform'
+    required: false
+  workspace:
+    description: 'Terraform workspace'
+    required: false
+  aws-access-key-id:
+    description: 'AWS Access Key ID'
+    required: false
+  aws-secret-access-key:
+    description: 'AWS Secret Access Key'
+    required: false
+  role-arn:
+    description: 'Role ARN to assume'
+    required: false
+  role-session-name:
+    description: 'Role Session Name'
+    required: false
+  destroy:
+    description: Terraform destroy
+    default: "no"
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+  - name: Print Where I AM
+    run: pwd
+    shell: bash
+
+  - name: Print Directory Structure
+    run: ls -al ${{ inputs.directory }}
+    shell: bash
+
+  - name: Login to AWS
+    uses: aws-actions/configure-aws-credentials@v4
+    with:
+      aws-access-key-id: ${{ inputs.aws-access-key-id }}
+      aws-secret-access-key: ${{ inputs.aws-secret-access-key }}
+      aws-region: ${{ inputs.aws-region }}
+
+  - name: Setup Terraform
+    uses: hashicorp/setup-terraform@v3
+    with:
+      terraform_version: 1.9.4
+
+  - name: Terraform Init
+    run: |
+      cd ${{ inputs.directory }}
+      terraform init -upgrade
+    shell: bash
+
+  - name: Select workspace
+    run: |
+      cd ${{ inputs.directory }}
+      if [ -n "${{ inputs.workspace }}" ]; then
+          terraform workspace select ${{ inputs.workspace }} || terraform workspace new ${{ inputs.workspace }}
+      else
+        echo "No workspace provided, skipping workspace selection."
+      fi
+      ls -ltr
+    shell: bash
+
+  - name: Terraform Validate
+    run: |
+      cd ${{ inputs.directory }}
+      terraform validate
+    shell: bash
+
+  - name: Terraform Plan
+    run: |
+      cd ${{ inputs.directory }}
+      ls -ltr
+      var_args=""
+      # Iterate through the variables and export each as TF_VAR_
+      if [ ! -z "${{ inputs.variables }}" ]; then
+        for var in $(echo "${{ inputs.variables }}" | tr ',' '\n'); do
+          key=$(echo $var | cut -d '=' -f 1)   # Extract the variable name
+          value=$(echo $var | cut -d '=' -f 2) # Extract the variable value
+          echo "Exporting TF_VAR_$key=$value"
+          export TF_VAR_$key="$value"          # Export as TF_VAR_ format
+        done
+      fi
+      terraform plan
+    shell: bash
+
+  - name: Terraform Apply
+    run: |
+      cd ${{ inputs.directory }}
+      ls -ltr
+      var_args=""
+      # Iterate through the variables and export each as TF_VAR_
+      if [ ! -z "${{ inputs.variables }}" ]; then
+        for var in $(echo "${{ inputs.variables }}" | tr ',' '\n'); do
+          key=$(echo $var | cut -d '=' -f 1)   # Extract the variable name
+          value=$(echo $var | cut -d '=' -f 2) # Extract the variable value
+          echo "Exporting TF_VAR_$key=$value"
+          export TF_VAR_$key="$value"          # Export as TF_VAR_ format
+        done
+      fi
+      if [ "${{ inputs.destroy }}" = "yes" ]; then
+        echo "Destroying the infrastructure"
+        terraform destroy -auto-approve
+      else
+        echo "Applying the infrastructure"
+        terraform apply -auto-approve
+      fi
+    shell: bash
