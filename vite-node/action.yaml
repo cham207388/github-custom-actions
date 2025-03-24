@@ -1,4 +1,4 @@
-name: Build maven project
+name: Build npm project
 
 inputs:
   test:
@@ -16,25 +16,19 @@ runs:
     run: pwd
     shell: bash
 
-  - name: Set up JDK
-    uses: actions/setup-java@v4
+  - name: Set up Node
+    uses: actions/setup-node@v4
     with:
-      distribution: 'temurin'
-      java-version: '21'
+      node-version: 18
 
-  - name: mvn clean
+  - name: npm install
     run: |
       cd ${{ inputs.directory }}
-      mvn clean
+      npm install
     shell: bash
 
-  - name: mvn package
+  - name: npm run build
     run: |
       cd ${{ inputs.directory }}
-      if [[ "${{ inputs.test }}" == "no" ]]; then
-        echo "Skipping tests"
-        mvn package -Dmaven.test.skip
-      else
-        mvn package
-      fi
+      npm run build
     shell: bash
