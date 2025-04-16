@@ -59,7 +59,7 @@ runs:
     uses: webfactory/ssh-agent@v0.5.3
     with:
       ssh-private-key: ${{ inputs.ssh-private-key }}
-  # Step 1: Select Workspace
+
   - name: Setup Terraform
     uses: hashicorp/setup-terraform@v3
     with:
@@ -71,8 +71,7 @@ runs:
       terraform init -upgrade
     shell: bash
 
-  # Step 3: Select Workspace
-  - name: Select workspace
+  - name: Select Terraform Workspace
     run: |
       cd ${{ inputs.directory }}
       if [ -n "${{ inputs.workspace }}" ]; then
