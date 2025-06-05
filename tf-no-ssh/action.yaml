@@ -29,6 +29,10 @@ inputs:
     description: Terraform destroy
     default: "no"
     required: false
+  terraform-version:
+    description: 'Terraform version'
+    default: "1.11.1"
+    required: false
 
 runs:
   using: "composite"
@@ -51,7 +55,7 @@ runs:
   - name: Setup Terraform
     uses: hashicorp/setup-terraform@v3
     with:
-      terraform_version: 1.9.4
+      terraform_version: ${{ inputs.terraform-version }}
 
   - name: Terraform Init
     run: |

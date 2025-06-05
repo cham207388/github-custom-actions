@@ -24,6 +24,10 @@ inputs:
     required: false
     # For AWS auth, you can use either aws-access-key-id/aws-secret-access-key 
     # or role-arn/role-session-name
+  terraform-version:
+    description: 'Terraform version'
+    default: "1.11.1"
+    required: false
 runs:
   using: "composite"
   steps:
@@ -46,8 +50,7 @@ runs:
   - name: Setup Terraform
     uses: hashicorp/setup-terraform@v3
     with:
-      terraform_version: 1.9.1
-
+      terraform_version: ${{ inputs.terraform-version }}
 
   - name: Terraform Init
     run: terraform init -upgrade
@@ -84,7 +87,6 @@ runs:
       terraform plan $var_args
       working-directory: ${{ inputs.directory }}
     shell: bash
-
   # - name: Terraform Apply
   #   env:
   #     TF_VAR_region: ${{ inputs.aws_region }}
