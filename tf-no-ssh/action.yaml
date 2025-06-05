@@ -31,7 +31,7 @@ inputs:
     required: false
   terraform-version:
     description: 'Terraform version'
-    default: "1.11.1"
+    default: 1.11.1
     required: false
 
 runs:
