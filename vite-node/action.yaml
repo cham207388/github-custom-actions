@@ -1,11 +1,12 @@
 name: Build npm project
+description: Build vite project with Node.js 20
 
 inputs:
   test:
     default: "yes"
     description: "Run tests?"
     required: false
-  directory:
+  working-directory:
     description: working directory
     required: true
 
@@ -23,12 +24,12 @@ runs:
 
   - name: npm install
     run: |
-      cd ${{ inputs.directory }}
+      cd ${{ inputs.working-directory }}
       npm install
     shell: bash
 
   - name: npm run build
     run: |
-      cd ${{ inputs.directory }}
+      cd ${{ inputs.working-directory }}
       npm run build
     shell: bash

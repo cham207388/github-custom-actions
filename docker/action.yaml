@@ -1,4 +1,5 @@
 name: Docker Action - Build and push to docker Hub
+description: Build and push docker image to docker Hub
 
 inputs:
   image-name:

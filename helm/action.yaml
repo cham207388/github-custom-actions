@@ -1,4 +1,5 @@
 name: Terraform Action for AWS
+description: Terraform Action for Helm
 
 inputs:
   aws-region:

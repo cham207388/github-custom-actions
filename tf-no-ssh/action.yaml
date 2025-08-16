@@ -1,10 +1,11 @@
 name: Terraform Action for AWS
+description: Terraform Action for AWS without SSH agent
 
 inputs:
   aws-region:
     description: 'AWS Region'
     required: true
-  directory:
+  working-directory:
     description: 'Directory of the Terraform configuration'
     required: true
   variables:
@@ -42,7 +43,7 @@ runs:
     shell: bash
 
   - name: Print Directory Structure
-    run: ls -al ${{ inputs.directory }}
+    run: ls -al ${{ inputs.working-directory }}
     shell: bash
 
   - name: Login to AWS
@@ -59,13 +60,13 @@ runs:
 
   - name: Terraform Init
     run: |
-      cd ${{ inputs.directory }}
+      cd ${{ inputs.working-directory }}
       terraform init -upgrade
     shell: bash
 
   - name: Select Terraform Workspace
     run: |
-      cd ${{ inputs.directory }}
+      cd ${{ inputs.working-directory }}
       if [ -n "${{ inputs.workspace }}" ]; then
           terraform workspace select ${{ inputs.workspace }} || terraform workspace new ${{ inputs.workspace }}
       else
@@ -76,13 +77,13 @@ runs:
 
   - name: Terraform Validate
     run: |
-      cd ${{ inputs.directory }}
+      cd ${{ inputs.working-directory }}
       terraform validate
     shell: bash
 
   - name: Terraform Apply or Destroy
     run: |
-      cd ${{ inputs.directory }}
+      cd ${{ inputs.working-directory }}
       ls -ltr
       var_args=""
       # Iterate through the variables and export each as TF_VAR_

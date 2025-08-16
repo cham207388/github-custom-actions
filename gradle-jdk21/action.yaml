@@ -1,5 +1,5 @@
-name: Build maven project
-description: Build maven project with JDK 21
+name: Build gradle project
+description: Build gradle project with JDK 21
 
 inputs:
   test:
@@ -27,19 +27,30 @@ runs:
       distribution: 'temurin'
       java-version: ${{ inputs.java-version }}
 
-  - name: mvn clean
-    run: |
-      cd ${{ inputs.working-directory }}
-      mvn clean
+  - name: Setup Gradle
+    uses: gradle/actions/setup-gradle@v4
+
+  - name: Ensure Gradle Wrapper is Executable
+    run: chmod +x gradlew
     shell: bash
 
-  - name: mvn package
+  - name: Verify Gradle Version
+    run: ./gradlew --version
+    shell: bash
+
+  - name: gradle clean
+    run: |
+      cd ${{ inputs.working-directory }}
+      gradle clean
+    shell: bash
+
+  - name: gradle build
     run: |
       cd ${{ inputs.working-directory }}
       if [[ "${{ inputs.test }}" == "no" ]]; then
         echo "Skipping tests"
-        mvn package -Dmaven.test.skip
+        gradle build -x test
       else
-        mvn package
+        gradle build
       fi
     shell: bash
