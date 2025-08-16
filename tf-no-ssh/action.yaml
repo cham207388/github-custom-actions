@@ -4,7 +4,8 @@ description: Terraform Action for AWS without SSH agent
 inputs:
   aws-region:
     description: 'AWS Region'
-    required: true
+    required: false
+    default: "us-east-1"
   working-directory:
     description: 'Directory of the Terraform configuration'
     required: true
