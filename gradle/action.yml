@@ -1,0 +1,70 @@
+name: 'Build Gradle Project'
+description: 'A fast, cached build for Gradle projects using the wrapper and build cache'
+
+inputs:
+  test:
+    default: 'yes'
+    description: 'Run tests? Set to "no" to skip'
+    required: false
+  working-directory:
+    description: 'The root directory of the Gradle project (where gradlew is)'
+    required: true
+  java-version:
+    description: 'Java version to use'
+    default: '21'
+    required: false
+  gradle-task:
+    description: 'The main Gradle task to execute (e.g., build, assemble, check)'
+    default: 'build'
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+    # ------- SETUP & CACHING ------- 
+    - name: Set up JDK
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: ${{ inputs.java-version }}
+        # USE THE INTEGRATED GRADLE CACHING from setup-java
+        cache: 'gradle'
+
+    - name: Setup Gradle
+      # This action is excellent for advanced caching and build scan integration
+      uses: gradle/actions/setup-gradle@v4
+      with:
+        # This is crucial. It generates a checksum of the lockfile for caching.
+        # The action automatically configures caching for ~/.gradle/caches and ~/.gradle/wrapper
+        cache-disabled: false # This is true by default! Must set to false to enable.
+        # You can be more specific if you have a gradle.lockfile or don't want to use the wrapper
+        # cache-read-only: false # Uncomment for read-only caching on certain branches
+
+    # ------- PREPARATION ------- 
+    - name: Change to working directory
+      shell: bash
+      run: cd ${{ inputs.working-directory }}
+
+    - name: Ensure Gradle Wrapper is Executable
+      shell: bash
+      run: chmod +x ./gradlew
+
+    # ------- THE OPTIMIZED BUILD ------- 
+    - name: Execute Gradle task
+      shell: bash
+      # We run from the working-directory, so we use ./gradlew
+      run: |
+        # Use a single command to leverage the Gradle Daemon and Build Cache
+        if [[ "${{ inputs.test }}" == "no" ]]; then
+          echo "Executing: ./gradlew ${{ inputs.gradle-task }} -x test --build-cache --parallel --no-daemon"
+          ./gradlew ${{ inputs.gradle-task }} -x test --build-cache --parallel --no-daemon
+        else
+          echo "Executing: ./gradlew ${{ inputs.gradle-task }} --build-cache --parallel --no-daemon"
+          ./gradlew ${{ inputs.gradle-task }} --build-cache --parallel --no-daemon
+        fi
+
+    # ------- (Optional) Post-Build Analysis ------- 
+    - name: Publish Build Scan
+      if: ${{ always() }} # Publishes a build scan even if the build fails
+      shell: bash
+      run: ./gradlew buildScanPublish --no-daemon
