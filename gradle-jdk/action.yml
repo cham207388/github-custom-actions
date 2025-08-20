@@ -40,21 +40,21 @@ runs:
         # You can be more specific if you have a gradle.lockfile or don't want to use the wrapper
         # cache-read-only: false # Uncomment for read-only caching on certain branches
 
-    # ------- PREPARATION ------- 
-    - name: Change to working directory
-      shell: bash
-      run: cd ${{ inputs.working-directory }}
-
     - name: Ensure Gradle Wrapper is Executable
+      run: |
+        pwd
+        cd ${{ inputs.working-directory }}
+        chmod +x ./gradlew
       shell: bash
-      run: chmod +x ./gradlew
 
     # ------- THE OPTIMIZED BUILD ------- 
     - name: Execute Gradle task
-      shell: bash
       # We run from the working-directory, so we use ./gradlew
       run: |
         # Use a single command to leverage the Gradle Daemon and Build Cache
+        pwd
+        cd ${{ inputs.working-directory }}
+        pwd
         if [[ "${{ inputs.test }}" == "no" ]]; then
           echo "Executing: ./gradlew ${{ inputs.gradle-task }} -x test --build-cache --parallel --no-daemon"
           ./gradlew ${{ inputs.gradle-task }} -x test --build-cache --parallel --no-daemon
@@ -62,9 +62,11 @@ runs:
           echo "Executing: ./gradlew ${{ inputs.gradle-task }} --build-cache --parallel --no-daemon"
           ./gradlew ${{ inputs.gradle-task }} --build-cache --parallel --no-daemon
         fi
-
+      shell: bash
     # ------- (Optional) Post-Build Analysis ------- 
     - name: Publish Build Scan
       if: ${{ always() }} # Publishes a build scan even if the build fails
+      run: |
+        cd ${{ inputs.working-directory }}
+        ./gradlew buildScanPublish --no-daemon
       shell: bash
-      run: ./gradlew buildScanPublish --no-daemon
