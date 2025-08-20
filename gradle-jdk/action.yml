@@ -63,10 +63,10 @@ runs:
           ./gradlew ${{ inputs.gradle-task }} --build-cache --parallel --no-daemon
         fi
       shell: bash
-    # ------- (Optional) Post-Build Analysis ------- 
-    - name: Publish Build Scan
-      if: ${{ always() }} # Publishes a build scan even if the build fails
-      run: |
-        cd ${{ inputs.working-directory }}
-        ./gradlew buildScanPublish --no-daemon
-      shell: bash
+    # # ------- (Optional) Post-Build Analysis ------- 
+    # - name: Publish Build Scan
+    #   if: ${{ always() }} # Publishes a build scan even if the build fails
+    #   run: |
+    #     cd ${{ inputs.working-directory }}
+    #     ./gradlew buildScanPublish --no-daemon
+    #   shell: bash
