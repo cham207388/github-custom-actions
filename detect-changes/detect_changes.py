@@ -1,18 +1,9 @@
 #!/usr/bin/env python3
 """
 Detect Changes Script for GitHub Actions CI/CD Pipeline
-
-This script detects changes in multiple modules within a mono-repo by comparing
-folder hashes between base and head commits. It outputs GitHub Actions compatible
-outputs for conditional workflow execution.
 """
 
-import os
-import sys
-import json
-import hashlib
-import subprocess
-import shutil
+import os, argparse, json, hashlib, subprocess, shutil, sys
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
@@ -213,34 +204,23 @@ def parse_modules_string(modules_str: str) -> List[str]:
 
 
 def main():
-    # Parse command line arguments
-    if len(sys.argv) < 3:
-        print("Usage: detect_changes.py --modules <modules> --semantic-version <version>")
-        sys.exit(1)
+    parser = argparse.ArgumentParser(description='Detect changes in mono-repo modules')
+    parser.add_argument('--modules', required=True,
+                       help='Space-separated list of modules to check for changes (e.g., "service-a service-b")')
+    parser.add_argument('--semantic-version', required=True,
+                       help='Semantic version from previous step')
     
-    # Simple argument parsing (for composite action compatibility)
-    modules_str = None
-    semantic_version = None
+    args = parser.parse_args()
     
-    # Parse arguments in order (since composite actions pass them positionally)
-    if len(sys.argv) >= 2:
-        modules_str = sys.argv[1]
-    if len(sys.argv) >= 3:
-        semantic_version = sys.argv[2]
-    
-    if not modules_str or not semantic_version:
-        print("Error: Both modules and semantic-version are required")
-        sys.exit(1)
-    
-    # Parse modules
-    modules_list = parse_modules_string(modules_str)
+    # Parse modules string into list
+    modules_list = parse_modules_string(args.modules)
     
     if not modules_list:
         print("Error: No modules specified")
         sys.exit(1)
     
     print(f"Checking modules: {modules_list}")
-    print(f"Semantic version: {semantic_version}")
+    print(f"Semantic version: {args.semantic_version}")
     
     # Initialize detector
     detector = ChangeDetector(modules=modules_list)
@@ -249,7 +229,7 @@ def main():
     changes = detector.detect_changes()
     
     # Output results for GitHub Actions
-    detector.output_github_actions(changes, semantic_version)
+    detector.output_github_actions(changes, args.semantic_version)
     
     # Print summary
     print("\nChange Detection Summary:")
