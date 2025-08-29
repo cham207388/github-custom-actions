@@ -1,0 +1,30 @@
+name: 'Detect Changes in Mono-Repo'
+description: 'Detects changes in multiple modules within a mono-repo by comparing folder hashes between commits'
+author: 'Alhagie Cham'
+
+inputs:
+  modules:
+    description: 'Space-separated list of modules to check for changes'
+    required: true
+    default: ''
+  semantic-version:
+    description: 'Semantic version from previous step'
+    required: true
+  github-token:
+    description: 'GitHub token for authentication'
+    required: false
+    default: ${{ github.token }}
+
+outputs:
+  changes:
+    description: 'JSON object containing change status for each module'
+  semantic-version:
+    description: 'Pass-through semantic version'
+
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - ${{ inputs.modules }}
+    - ${{ inputs.semantic-version }}
+    - ${{ inputs.github-token }}
